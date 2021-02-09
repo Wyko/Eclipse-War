@@ -12,6 +12,17 @@ PART_ATTRIBUTES = {
     'missiles': 0,
 }
 
+
+SHIP_ATTRIBUTES = {
+    'slots': 0,
+    'quantity_limit': 0,
+    'starbase': False,
+    'damage': 0,
+    'alive': True,
+    'parts': [],
+}
+
+
 class Part(object):
 
     def __init__(self, name, **kwargs):
@@ -22,12 +33,6 @@ class Part(object):
                 value = kwargs[attribute]
             setattr(self, attribute, value)
 
-SHIP_ATTRIBUTES = {
-    'slots': 0,
-    'quantity_limit': 0,
-    'starbase': False,
-    'parts': [],
-}
 
 class Ship(Part):
 
@@ -46,9 +51,20 @@ class Ship(Part):
             return total
 
         for attribute, value in PART_ATTRIBUTES.items():
-            property_name = "total_%s" % attribute
+            property_name = f"total_{attribute}"
             setattr(Ship, property_name,
-                property(lambda x: attribute_total(x, attribute)))
+                    property(lambda x: attribute_total(x, attribute)))
+
+        @property
+        def hp(self):
+            """Gets the total hitpoints of the ship (base 1 plus any hull) and
+            subtracts any damage taken so far. If the result is less than zero,
+            return zero.
+
+            Returns:
+                int: The total hit points of the ship
+            """            
+            return max(0, (self.attribute_total("hulls") + 1 - self.damage))
 
         @property
         def is_valid(self):
