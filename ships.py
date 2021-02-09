@@ -17,8 +17,8 @@ class Part(object):
     def __init__(self, name, **kwargs):
         self.name = name
 
-        for attribute, value in PART_ATTRIBUTES.iteritems():
-            if kwargs.has_key(attribute):
+        for attribute, value in PART_ATTRIBUTES.items():
+            if attribute in kwargs:
                 value = kwargs[attribute]
             setattr(self, attribute, value)
 
@@ -34,8 +34,8 @@ class Ship(Part):
     def __init__(self, name, **kwargs):
         super(Ship, self).__init__(name, **kwargs)
 
-        for attribute, value in SHIP_ATTRIBUTES.iteritems():
-            if kwargs.has_key(attribute):
+        for attribute, value in SHIP_ATTRIBUTES.items():
+            if attribute in kwargs:
                 value = kwargs[attribute]
             setattr(self, attribute, value)
 
@@ -45,7 +45,7 @@ class Ship(Part):
                 total += getattr(part, attribute_name, 0)
             return total
 
-        for attribute, value in PART_ATTRIBUTES.iteritems():
+        for attribute, value in PART_ATTRIBUTES.items():
             property_name = "total_%s" % attribute
             setattr(Ship, property_name,
                 property(lambda x: attribute_total(x, attribute)))
