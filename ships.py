@@ -1,15 +1,16 @@
+import uuid
+
 PART_ATTRIBUTES = {
-    'energy_usage': 0,
-    'energy_production': 0,
+    'energy': 0,
     'initiative': 0,
-    'hulls': 0,
-    'drives': 0,
-    'computers': 0,
-    'shields': 0,
-    'yellows': 0,
-    'oranges': 0,
-    'reds': 0,
-    'missiles': 0,
+    'hull': 0,
+    'move': 0,
+    'attack': 0,
+    'shield': 0,
+    'damage': 0,
+    'parts': 0,
+    'missile': False,
+    'discovery': False,
 }
 
 
@@ -17,7 +18,7 @@ SHIP_ATTRIBUTES = {
     'slots': 0,
     'quantity_limit': 0,
     'starbase': False,
-    'damage': 0,
+    'damage_taken': 0,
     'alive': True,
     'parts': [],
 }
@@ -36,8 +37,10 @@ class Part(object):
 
 class Ship(Part):
 
-    def __init__(self, name, **kwargs):
-        super(Ship, self).__init__(name, **kwargs)
+    def __init__(self, **kwargs):
+        self._set_name()
+        
+        super(Ship, self).__init__(self.name, **kwargs)
 
         for attribute, value in SHIP_ATTRIBUTES.items():
             if attribute in kwargs:
@@ -55,25 +58,34 @@ class Ship(Part):
             setattr(Ship, property_name,
                     property(lambda x: attribute_total(x, attribute)))
 
-        @property
-        def hp(self):
-            """Gets the total hitpoints of the ship (base 1 plus any hull) and
-            subtracts any damage taken so far. If the result is less than zero,
-            return zero.
+    @property
+    def hp(self):
+        """Gets the total hitpoints of the ship (base 1 plus any hull) and
+        subtracts any damage taken so far. If the result is less than zero,
+        return zero.
 
-            Returns:
-                int: The total hit points of the ship
-            """            
-            return max(0, (self.attribute_total("hulls") + 1 - self.damage))
+        Returns:
+            int: The total hit points of the ship
+        """
+        return max(0, (self.attribute_total("hulls") + 1 - self.damage_taken))
 
-        @property
-        def is_valid(self):
-            rules = [
-                len(self.parts) <= self.slots,
-                (not self.starbase and self.total_drives > 0) or self.starbase,
-                self.total_energy_production >= self.total_energy_usage,
-            ]
-            return all(rules)
+    @property
+    def is_valid(self):
+        rules = [
+            len(self.parts) <= self.slots,
+            (not self.starbase and self.total_drives > 0) or self.starbase,
+            self.total_energy_production >= self.total_energy_usage,
+        ]
+        return all(rules)
 
-        def add_part(self, part):
-            self.parts.append(part)
+    def add_part(self, part):
+        self.parts.append(part)
+
+    def _set_name(self):
+        """Generates a random UUID for the object.
+        """        
+        self.name = uuid.uuid4()
+        return self.name
+
+
+interceptor = Ship()
