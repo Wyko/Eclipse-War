@@ -1,7 +1,5 @@
+from parts import Part, PART_ATTRIBUTES, PARTS
 import uuid
-
-
-
 
 SHIP_ATTRIBUTES = {
     'slots': 0,
@@ -13,27 +11,46 @@ SHIP_ATTRIBUTES = {
 }
 
 
-class Ship():
+class Ship(Part):
 
     def __init__(self, **kwargs):
         self._set_name()
         
-        # super(Ship, self).__init__(self.name, **kwargs)
+        # Assign part attributes to the ship to permit manual modification of
+        # attributes. These "ship-part" attributes will be added to the sum of
+        # any part attributes to find the final totals
+        for attribute, value in PART_ATTRIBUTES.items():
+            setattr(self, attribute, value)
+            self.slots_used = 0
 
+        # Assign the default ship attributes
         for attribute, value in SHIP_ATTRIBUTES.items():
             if attribute in kwargs:
                 value = kwargs[attribute]
             setattr(self, attribute, value)
 
         def attribute_total(self, attribute_name):
+            """A lambda function used to calculate (in real-time) the sum of
+            one attribute of the the parts on a ship.
+
+            Args:
+                attribute_name (str): The name of the atibute to sum.
+
+            Returns:
+                int: The sum of the attribute on all parts on the ship.
+            """            
+            # Get any manually added modifiers to the ship
             total = getattr(self, attribute_name, 0)
+
+            # Sum up the attributes on the parts on the ship
             for part in self.parts:
                 total += getattr(part, attribute_name, 0)
+
             return total
 
         for attribute, value in PART_ATTRIBUTES.items():
-            setattr(Ship, f"total_{attribute}",
-                    property(lambda x: attribute_total(x, attribute)))
+            setattr(Ship, f"total_{attribute}", property(
+                lambda x, attribute=attribute: attribute_total(x, attribute)))
 
     @property
     def hp(self):
@@ -71,6 +88,12 @@ class Ship():
         return self.name
 
 
+ion_cannon = Part(PARTS.ion_cannon)
+
 interceptor = Ship()
+
+print(interceptor.total_energy)
+
+interceptor.add_part(ion_cannon)
 
 print(interceptor.total_energy)

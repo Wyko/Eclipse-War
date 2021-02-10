@@ -19,7 +19,7 @@ PART_ATTRIBUTES = {
     'slots_used': 1,
 }
 
-class PART(Enum):
+class PARTS(Enum):
     ion_cannon = {'name': 'Ion Cannon', 'yellows': 1, 'energy': -1}
     ion_turret = {'name': 'Ion Turret', 'yellows': 2, 'discovery': True}
     ion_disruptor = {'name': 'Ion Disruptor', 'yellows': 1, 'initiative': 3, 'discovery': True}
@@ -70,12 +70,14 @@ class PART(Enum):
 
 class Part():
 
-    def __init__(self, name, **kwargs):
-        self.name = name
+    def __init__(self, part):
+        # Unpack the part
+        if isinstance(part, Enum):
+            part = part.value
+        
+        self.name = part['name']
 
         for attribute, value in PART_ATTRIBUTES.items():
-            if attribute in kwargs:
-                value = kwargs[attribute]
+            if attribute in part:
+                value = part[attribute]
             setattr(self, attribute, value)
-
-ion = Part(PARTS['ion cannon'])
