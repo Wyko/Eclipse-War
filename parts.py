@@ -1,4 +1,5 @@
 from enum import Enum
+import random
 
 PART_ATTRIBUTES = {
     'energy': 0,
@@ -7,10 +8,10 @@ PART_ATTRIBUTES = {
     'move': 0,
     'attack': 0,
     'shield': 0,
-    'yellows': 0,
-    'oranges': 0,
-    'blues': 0,
-    'reds': 0,
+    'yellow': 0,
+    'orange': 0,
+    'blue': 0,
+    'red': 0,
     'yellow_missiles': 0,
     'orange_missiles': 0,
     'blue_missiles': 0,
@@ -20,14 +21,32 @@ PART_ATTRIBUTES = {
 }
 
 class PARTS(Enum):
-    ion_cannon = {'name': 'Ion Cannon', 'yellows': 1, 'energy': -1}
-    ion_turret = {'name': 'Ion Turret', 'yellows': 2, 'discovery': True}
-    ion_disruptor = {'name': 'Ion Disruptor', 'yellows': 1, 'initiative': 3, 'discovery': True}
-    plasma_cannon = {'name': 'Plasma Cannon', 'oranges': 1, 'energy': -2}
-    plasma_turret = {'name': 'Plasma Turret', 'oranges': 2, 'energy': -3, 'discovery': True}
-    soliton_cannon = {'name': 'Soliton Cannon', 'blues': 1, 'energy': -3}
-    soliton_charger = {'name': 'Soliton Charger', 'blues': 1, 'discovery': True}
-    antimatter_cannon = {'name': 'Antimatter Cannon', 'reds': 1, 'energy': -4}
+    @classmethod
+    def random(cls):
+        # Returns a random part
+        return random.choice(list(cls.__members__.values()))
+    
+    @classmethod
+    def random_drive(cls):
+        # Returns a random part
+        return random.choice([v for v in cls.__members__.values() if 'drive' in v.name])
+
+    @classmethod
+    def random_cannon(cls):
+        weapons = ['cannon', 'turret', 'disruptor', 'charger']
+        # Returns a random part
+        return random.choice([v for v in cls.__members__.values() if any(
+            [x in v.name for x in weapons])])
+
+
+    ion_cannon = {'name': 'Ion Cannon', 'yellow': 1, 'energy': -1}
+    ion_turret = {'name': 'Ion Turret', 'yellow': 2, 'discovery': True}
+    ion_disruptor = {'name': 'Ion Disruptor', 'yellow': 1, 'initiative': 3, 'discovery': True}
+    plasma_cannon = {'name': 'Plasma Cannon', 'orange': 1, 'energy': -2}
+    plasma_turret = {'name': 'Plasma Turret', 'orange': 2, 'energy': -3, 'discovery': True}
+    soliton_cannon = {'name': 'Soliton Cannon', 'blue': 1, 'energy': -3}
+    soliton_charger = {'name': 'Soliton Charger', 'blue': 1, 'discovery': True}
+    antimatter_cannon = {'name': 'Antimatter Cannon', 'red': 1, 'energy': -4}
     rift_cannon = {'name': 'Rift Cannon', 'rifts': 1, 'energy': -2} # We have to make special rules for this guy
 
     flux_missile = {'name': 'Flux Missile', 'yellow_missiles': 2, 'initiative': 1, 'missile': True}
@@ -81,3 +100,6 @@ class Part():
             if attribute in part:
                 value = part[attribute]
             setattr(self, attribute, value)
+
+    def __repr__(self) -> str:
+        return self.name

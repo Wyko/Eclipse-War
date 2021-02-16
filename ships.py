@@ -1,4 +1,5 @@
 from parts import Part, PART_ATTRIBUTES, PARTS
+from random import randint
 import uuid
 
 SHIP_ATTRIBUTES = {
@@ -6,7 +7,10 @@ SHIP_ATTRIBUTES = {
     'quantity_limit': 0,
     'starbase': False,
     'damage_taken': 0,
-    'alive': True,
+    'order': 0, # 1 is defender, every subsequent player in the hex
+                # is a higher number
+    'owner': None,
+    'type': None,
     'parts': [],
 }
 
@@ -52,6 +56,44 @@ class Ship(Part):
             setattr(Ship, f"total_{attribute}", property(
                 lambda x, attribute=attribute: attribute_total(x, attribute)))
 
+
+    def __repr__(self):
+        return f"Order: {self.order}, Init: {self.total_initiative}, " \
+            f"Parts: {self.parts}"
+
+    @classmethod
+    def random(cls, min_parts= 1, max_parts= 6, drive= True, weapon= True):
+        """Creates a randomly generated ship, containing at least one engine and
+        between 1 and 7 other parts.
+
+        Args:
+            min_parts (int, optional): Minimum amount of parts to add to the 
+            ship. Defaults to 1.
+            max_parts (int, optional):  Maximum amount of parts to add to the 
+            ship. Defaults to 8.
+            drive (bool, optional): Add a random drive to the ship. This is in 
+            addition to the random parts added to the ship, which may themselves
+            include other drives. This is not affected by the min or max parts
+            arguments. Defaults to True.
+
+        Returns:
+            ship: A randomly generated ship
+        """
+        part_list = [Part(PARTS.random()) for _ in range(
+            randint(min_parts, max_parts))]
+        
+        if drive:
+            part_list.append(Part(PARTS.random_drive()))
+        
+        if weapon:
+            part_list.append(Part(PARTS.random_cannon()))
+            part_list.append(Part(PARTS.rift_cannon))
+        
+        return Ship(
+            order= randint(1,4),
+            parts= part_list
+        )
+
     @property
     def hp(self):
         """Gets the total hitpoints of the ship (base 1 plus any hull) and
@@ -75,25 +117,17 @@ class Ship(Part):
     def add_part(self, part):
         self.parts.append(part)
 
-    def reset_status(self):
-        """Removes all damage taken and sets the status to Alive.
+    @property
+    def alive(self):
+        return self.hp > 0
+
+    def reset(self):
+        """Removes all damage taken.
         """        
         self.damage_taken = 0
-        self.alive = True
 
     def _set_name(self):
         """Generates a random UUID for the object.
         """        
         self.name = str(uuid.uuid4())
         return self.name
-
-
-ion_cannon = Part(PARTS.ion_cannon)
-
-interceptor = Ship()
-
-print(interceptor.total_energy)
-
-interceptor.add_part(ion_cannon)
-
-print(interceptor.total_energy)
